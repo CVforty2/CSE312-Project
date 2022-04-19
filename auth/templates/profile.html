@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %} {{username}} {% endblock %}
+
+{% block content%}
+<h6>{{Username}}</h6> <br>
+
+{% for post in posts %}
+<div class="alert alert-info" role="alert">
+    {{post}}
+</div>
+{% endfor %}
+
+<form method="post">
+    <p>
+      {{form.csrf_token}} <br>
+      {{form.text.label}} {{form.text()}} {{form.submit()}}
+    </p>
+</form>
+
+{% endblock %}
