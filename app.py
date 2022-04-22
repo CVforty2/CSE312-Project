@@ -7,11 +7,13 @@ import os
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'cse312'
-app.config['SQLALCHEMY_DATABASE_URI'] = TEST
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://qesbcvenrwjudb:355d5721bb2ee7a8c12ac387235ae3b8ae8f5f95c6554f99f73731f6cd45bcb4@ec2-3-225-79-57.compute-1.amazonaws.com:5432/deefogb5ult2oi"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # SQLAlchemy DB
 db = SQLAlchemy(app)
+
+# from auth.models import User
 
 # Helper to see last active members
 # Time out period is specified else where
@@ -24,11 +26,11 @@ def update_last_active():
 def init_app():
     # Initialize Blueprints
 
-    from auth.auth import auth
-    from chat.chat import chat
+    from auth.auth import auth_bp
+    from chat.chat import chat_bp
 
-    app.register_blueprint(auth, url_prefix="/")
-    app.register_blueprint(chat, url_prefix="/")
+    app.register_blueprint(auth_bp, url_prefix="/")
+    app.register_blueprint(chat_bp, url_prefix="/")
 
     from auth.models import User
     init_db(app)

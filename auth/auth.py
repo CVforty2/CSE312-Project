@@ -9,7 +9,7 @@ from auth.models import User
 from chat.models import Post
 
 
-auth = Blueprint("auth", __name__, template_folder="templates")
+auth_bp = Blueprint("auth", __name__, template_folder="templates")
 
 def flash_form_errors(form):
     for field, errors in form.errors.items():
@@ -21,7 +21,7 @@ def flash_form_errors(form):
 
 
 
-@auth.route('/register', methods=['GET', 'POST'])
+@auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
@@ -40,7 +40,7 @@ def register():
 
 
 
-@auth.route('/login', methods=['GET', 'POST'])
+@auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
 
@@ -64,7 +64,7 @@ def login():
 
 
 
-@auth.route('/logout')
+@auth_bp.route('/logout')
 def logout():
     logout_user()
     flash("User logged out!", 'success')
@@ -72,7 +72,7 @@ def logout():
 
 
 
-@auth.route('/profile/<username>')
+@auth_bp.route('/profile/<username>')
 def get_profile(username):
     user = User.query.filter_by(username=username)
     posts = Post.query.filter(Post.sender_id.like==current_user.id). \

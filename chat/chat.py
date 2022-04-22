@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 from auth.models import User
 
-chat = Blueprint("chat", __name__, template_folder="templates")
+chat_bp = Blueprint("chat", __name__, template_folder="templates")
 
 
 def get_active_users():
@@ -16,20 +16,20 @@ def get_active_users():
     return active_users
 
 
-@chat.route('/', methods=['GET', 'POST'])
+@chat_bp.route('/', methods=['GET', 'POST'])
 def index():
     online_users = get_active_users()
     return render_template('home.html', online_users=online_users)
 
 
-@chat.route("/dm/<username>", methods=['GET', 'POST'])
+@chat_bp.route("/dm/<username>", methods=['GET', 'POST'])
 def chat(username):
     pass
 
 
-@chat.route('/create', methods=['GET', 'POST'])
-def create_post():
-    pass
+# @chat.route('/create', methods=['GET', 'POST'])
+# def create_post():
+#     pass
 
 
 def edit_post():
