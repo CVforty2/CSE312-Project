@@ -10,9 +10,9 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(150))
 
-    last_active = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
+    last_active = db.Column(db.DateTime, nullable=False)
 
-    def __init__(self, username, email, password, last_active):
+    def __init__(self, username, email, password, last_active=datetime.utcnow()):
         self.username = username
         self.email = email
         self.password = password

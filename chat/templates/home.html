@@ -3,9 +3,9 @@
 
 {% block content%}
 
-<!-- Update this -->
-<h6>Hello! {{current_user.username}}</h6>
-
+{% if current_user.is_authenticated %}
+<h2>Hello! {{current_user.username}}</h2>
+{% endif %}
 
 <ul>
 {% for user in online_users %}
@@ -16,7 +16,7 @@
         <div class="card-body">
           <h5 class="card-title">{{user.username}}</h5>
           <p class="card-text">{{user.email}}</p>
-          <a href="#" class="btn btn-primary">Go somewhere</a>
+          <a href=" {{ url_for('chat.chat', username=user.username) }} " class="btn btn-primary">Message</a>
         </div>
       </div>
 </li>

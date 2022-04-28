@@ -4,7 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
 from app import db
-from auth.forms import RegistrationForm, LoginForm, ChatForm
+from auth.forms import RegistrationForm, LoginForm
 from auth.models import User
 from chat.models import Post
 
@@ -15,10 +15,6 @@ def flash_form_errors(form):
     for field, errors in form.errors.items():
         for error in errors:
             flash(f"ERROR --> {field}: {error}", 'fail')
-
-
-
-
 
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
@@ -37,7 +33,6 @@ def register():
 
     flash_form_errors(form)
     return render_template("register.html", form=form)
-
 
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
@@ -61,27 +56,23 @@ def login():
     return render_template("login.html", form=form)
 
 
-
-
-
 @auth_bp.route('/logout')
 def logout():
     logout_user()
     flash("User logged out!", 'success')
-    return redirect(url_for("home.index"))
+    return redirect(url_for("chat.index"))
 
 
+# @auth_bp.route('/profile/<username>')
+# def get_profile(username):
+#     user = User.query.filter_by(username=username)
+#     posts = Post.query.filter(Post.sender_id.like==current_user.id). \
+#         filter(Post.sender_id.like==user.id)
 
-@auth_bp.route('/profile/<username>')
-def get_profile(username):
-    user = User.query.filter_by(username=username)
-    posts = Post.query.filter(Post.sender_id.like==current_user.id). \
-        filter(Post.sender_id.like==user.id)
+#     form = ChatForm()
+#     if form.validate_on_submit():
+#         post = Post(current_user.id, user.id, form.text.data)
+#         db.session.add(post)
+#         db.session.commit()
 
-    form = ChatForm()
-    if form.validate_on_submit():
-        post = Post(current_user.id, user.id, form.text.data)
-        db.session.add(post)
-        db.session.commit()
-
-    return render_template("profile.html", username=user, posts=posts)
+#     return render_template("profile.html", username=user, posts=posts)

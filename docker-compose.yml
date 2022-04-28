@@ -2,8 +2,6 @@ version: '3.3'
 services:
   app:
     container_name: flask_app
-    labels:
-      project: "flask"
     build: .
     environment:
       PYTHONUNBUFFERED: 1

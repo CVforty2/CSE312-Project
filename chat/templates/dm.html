@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %} Direct Messages {% endblock %}
+
+{% block content%}
+
+<h2>Messages with {{username}}</h2>
+
+<form method="post">
+    <p>
+      {{form.csrf_token}} <br>
+      {{form.text.label}} {{form.text()}} <br>
+      {{form.submit()}} <br>
+    </p>
+</form>
+
+{% for p in posts %}
+
+  {% if p.sender_id == current_user.id %}
+    <div class="alert alert-primary" role="alert">
+      {{p.text}}
+    </div>
+  {% else %}
+    <div class="alert alert-secondary" role="alert">
+      {{p.text}}
+    </div>
+
+  {% endif %}
+
+{% endfor %}
+
+
+
+{% endblock %}

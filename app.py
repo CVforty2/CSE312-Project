@@ -14,12 +14,18 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 # from auth.models import User
+# from chat.models import Post
+# from cookie_socket.models import CookieClick
+
+
+
 
 # Helper to see last active members
 # Time out period is specified else where
-@app.before_request
+# @app.before_request
 def update_last_active():
     current_user.last_active = datetime.utcnow()
+    print(current_user.last_active)
     db.session.commit()
 
 
@@ -28,10 +34,13 @@ def init_app():
 
     from auth.auth import auth_bp
     from chat.chat import chat_bp
+    from cookie_socket.cookie_sock import sock_bp
 
     app.register_blueprint(auth_bp, url_prefix="/")
     app.register_blueprint(chat_bp, url_prefix="/")
+    app.register_blueprint(sock_bp, url_prefix="/")
 
+    from chat.models import Post
     from auth.models import User
     init_db(app)
 
@@ -41,6 +50,7 @@ def init_app():
     @login_manager.user_loader
     def load_user(id):
        return User.query.get(int(id))
+
 
 
 def init_db(app):
