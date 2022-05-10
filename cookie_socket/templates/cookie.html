@@ -4,6 +4,33 @@
 {% block content%}
 
 <!-- Put html code here -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<script src="static/functions.js"></script>
+
+<div>
+    <button id="cookie" onclick="sendClick()"><img src="static/cookie.jpg" height="50%" width="50%"/></button>
+    <div>Click The Cookie</div>
+</div>
+
+<div id="count"></div>
+
+<label for="filesub">Image: </label>
+<input id="filesub" type="file" name="upload" accept="image/jpeg">
+<button onclick="sendImage()">Submit</button>
+
+<label for="chat-comment">Chat: </label>
+<input id="chat-comment" type="text" name="comment">
+<button onclick="sendMessage()">Send</button>
+
+<div id="chat"></div>
+
+</body>
+</html>
 <!-- JS literal script can go here -->
 <!-- If trying to import a script put it in base.html -->
 
