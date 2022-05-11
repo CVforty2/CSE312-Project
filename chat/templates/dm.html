@@ -15,7 +15,7 @@
 
 {% for p in posts %}
 
-  {% if p.sender_id == current_user.id %}
+  {% if p['sender_username'] == session['current_user']['username'] %}
     <div class="alert alert-primary" role="alert">
       {{p.text}}
     </div>

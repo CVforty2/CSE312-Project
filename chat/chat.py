@@ -1,44 +1,47 @@
-from flask import Blueprint, flash, render_template, redirect, url_for, session
-from flask_login import current_user, login_required
+from flask import Blueprint, flash, render_template, redirect, url_for, session, g
 from datetime import datetime, timedelta
+import json
 
 from auth.models import User
 from chat.models import Post
 from chat.forms import ChatForm
-from app import db, update_last_active
+from app import user_collection, msg_collection
 
 
 chat_bp = Blueprint("chat", __name__, template_folder="templates")
 
 
+
+def activate_user():
+    if 'current_user' in session:
+        username = session['current_user']['username']
+        user_collection.update_one({'username': username}, {'$set': {'last_active': datetime.utcnow()}})
+
+
+
 def get_active_users():
     right_now = datetime.utcnow()
-    # delta = right_now - timedelta(minutes=right_now.minute - 30,
-    #                       seconds=right_now.second,
-    #                       microseconds=right_now.microsecond)
-    # # print(f"{User.last_active} >= {delta}")
-    sorted_users = list(User.query.order_by(User.last_active))
+    users = list(user_collection.find({}))
 
     active_users = []
-    for user in sorted_users:
+    for user in users:
         # print(current_user, user)
-        if current_user.is_authenticated and current_user.email != user.email:
-            print(user.last_active.year, user.last_active.month, user.last_active.day, user.last_active.hour, user.last_active.minute)
+        if 'current_user' in session and session['current_user']['email'] != user['email']:
+            print(user['last_active'].year, user['last_active'].month, user['last_active'].day, user['last_active'].hour, user['last_active'].minute)
             print(right_now.year, right_now.month, right_now.day, right_now.hour, right_now.minute)
-            if user.last_active.year == right_now.year and user.last_active.month == right_now.month and user.last_active.day == right_now.day \
-                and user.last_active.hour and right_now.hour and user.last_active.minute >= 0 and right_now.minute - 30:
+            if user['last_active'].year == right_now.year and user['last_active'].month == right_now.month and user['last_active'].day == right_now.day \
+                and user['last_active'].hour and right_now.hour and user['last_active'].minute >= 0 and right_now.minute - 30:
                 print(f"Appending {user}")
                 active_users.append(user)
-
 
     print(active_users)
     return active_users
 
 
-@login_required
 @chat_bp.route('/', methods=['GET', 'POST'])
 def index():
-    update_last_active()
+    # Update online users
+    activate_user()
     online_users = get_active_users()
     print(online_users)
     return render_template('home.html', online_users=online_users)
@@ -46,44 +49,56 @@ def index():
 
 @chat_bp.route("/dm/<username>", methods=['GET', 'POST'])
 def chat(username):
-    update_last_active()
-    recv = User.query.filter_by(username=username).first()
-    # print(current_user.id, recv.id)
+    activate_user()
 
-    posts_sender = Post.query.filter_by(sender_id=current_user.id).filter_by(reciever_id=recv.id).all()
-    posts_recv = Post.query.filter_by(sender_id=recv.id).filter_by(reciever_id=current_user.id).all()
+    out_msgs = list(msg_collection.find({'sender_username': session['current_user']['username'], 'reciever_username': username}))
+    in_msgs = list(msg_collection.find({'sender_username': username, 'reciever_username': session['current_user']['username']}))
 
-    posts = posts_sender + posts_recv
-    posts.sort(key=lambda x: x.created)
+    posts = out_msgs + in_msgs
+    posts.sort(key=lambda x: x['created'])
 
 
     form = ChatForm()
 
     if form.validate_on_submit():
         
-        p = Post(current_user.id, recv.id, form.text.data, datetime.utcnow())
-        db.session.add(p)
-        db.session.commit()
+        p = Post(session['current_user']['username'], username, form.text.data, datetime.utcnow())
+        msg_collection.insert_one(p.__dict__)
 
         flash("Sent message!", 'success')
         
         return redirect(url_for('chat.chat', username=username))
 
-    return render_template("dm.html", form=form, posts=posts, username=recv.username)
+    return render_template("dm.html", form=form, posts=posts, username=username)
 
 
-@chat_bp.route('/test', methods=['GET', 'POST'])
-def test():
-    form = ChatForm()
 
-    if form.validate_on_submit():
-        p = Post(1, 1, form.text.data, datetime.utcnow())
-        db.session.add(p)
-        db.session.commit()
 
-        return redirect(url_for('chat.test'))
 
-    return render_template("test.html", form=form)
+
+def msg_data(user1, user2):
+    out_msgs = list(msg_collection.find({'sender_username': user1, 'reciever_username': user2}))
+    in_msgs = list(msg_collection.find({'sender_username': user2, 'reciever_username': user1}))
+
+    posts = out_msgs + in_msgs
+    posts.sort(key=lambda x: x['created'])
+
+    count = 0
+    for i in range(len(posts)-1, 0, -1):
+        if posts[i]['sender_username'] == user1:
+            break
+        count += 1
+
+    return count
     
 
+@chat_bp.route('/testing')
+def get_unread_posts():
+    active_users = get_active_users()
 
+    unread_posts = {}
+    for user in active_users:
+        unread_posts[user['username']] = msg_data(session['current_user']['username'], user['username'])
+    
+    print(unread_posts)
+    return unread_posts

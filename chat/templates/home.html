@@ -1,18 +1,48 @@
 {% extends "base.html" %}
+{% block head %}
+{% endblock %}
+
+
 {% block title %} Placeholder {% endblock %}
+
 
 {% block content%}
 
-{% if current_user.is_authenticated %}
-<h2>Hello! {{current_user.username}}</h2>
+{% if 'current_user' in session %}
+<h2>Hello! {{session['current_user']['username']}}</h2>
 {% endif %}
+<br>
+<label id="messages"></label>
+
+<script>
+
+function ajaxGetRequest() {
+  let request = new XMLHttpRequest();
+  request.onreadystatechange = function () {
+    if (this.readyState === 4 && this.status === 200) {
+      document.getElementById('messages').innerHTML = this.response;
+      console.log(this.response);
+    }
+  };
+  request.open("GET", "http://localhost:8080/testing");
+  request.send();
+}
+
+function refresh() {
+  ajaxGetRequest();
+  setTimeout(refresh, 1000);
+}
+
+refresh();
+</script>
+
 
 <ul>
 {% for user in online_users %}
 
 <li>
     <div class="card" style="width: 18rem;">
-        <img src="..." class="card-img-top" alt="...">
+        <!-- <img src="..." class="card-img-top" alt="..."> -->
         <div class="card-body">
           <h5 class="card-title">{{user.username}}</h5>
           <p class="card-text">{{user.email}}</p>

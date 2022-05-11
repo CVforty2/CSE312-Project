@@ -1,19 +1,12 @@
-from app import db
-from flask_login import UserMixin
 from datetime import datetime
 
-class User(db.Model, UserMixin):
-    __tablename__ = 'users'
-    id = db.Column(db.Integer, primary_key=True)
-
-    username = db.Column(db.String(150), nullable=False)
-    email = db.Column(db.String(150), unique=True, nullable=False)
-    password = db.Column(db.String(150))
-
-    last_active = db.Column(db.DateTime, nullable=False)
-
+class User():
     def __init__(self, username, email, password, last_active=datetime.utcnow()):
         self.username = username
         self.email = email
         self.password = password
         self.last_active = last_active
+
+    
+    def __str__(self):
+        return f"Username: {self.username}, Email: {self.email}, Password: {self.password}, Last Active: {self.last_active}"

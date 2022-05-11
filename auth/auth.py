@@ -1,9 +1,8 @@
 from flask import Blueprint, flash, render_template, redirect, url_for, session
-from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
-from app import db
+from app import user_collection
 from auth.forms import RegistrationForm, LoginForm
 from auth.models import User
 from chat.models import Post
@@ -24,8 +23,7 @@ def register():
         hashed_password = generate_password_hash(form.password.data)
         new_user = User(form.username.data, form.email.data, hashed_password)
 
-        db.session.add(new_user)
-        db.session.commit()
+        user_collection.insert_one(new_user.__dict__)
 
         flash("User created successfully!", 'success')
 
@@ -40,13 +38,14 @@ def login():
     form = LoginForm()
 
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
+        user = user = list(user_collection.find({"email": form.email.data}))
+        print(user)
 
-        if user:
-            if check_password_hash(user.password, form.password.data):
-                login_user(user, remember=True)
-                db.session.add(user)
-                db.session.commit()
+        if len(user) > 0:
+            user = user[0]
+            if check_password_hash(user['password'], form.password.data):
+                del user['_id']
+                session['current_user'] = user
                 flash("Log in successfully", 'success')
                 return redirect(url_for("chat.index"))
             else:
@@ -58,21 +57,6 @@ def login():
 
 @auth_bp.route('/logout')
 def logout():
-    logout_user()
+    session.pop("current_user", None)
     flash("User logged out!", 'success')
     return redirect(url_for("chat.index"))
-
-
-# @auth_bp.route('/profile/<username>')
-# def get_profile(username):
-#     user = User.query.filter_by(username=username)
-#     posts = Post.query.filter(Post.sender_id.like==current_user.id). \
-#         filter(Post.sender_id.like==user.id)
-
-#     form = ChatForm()
-#     if form.validate_on_submit():
-#         post = Post(current_user.id, user.id, form.text.data)
-#         db.session.add(post)
-#         db.session.commit()
-
-#     return render_template("profile.html", username=user, posts=posts)

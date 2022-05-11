@@ -1,20 +1,13 @@
-from app import db
 from datetime import datetime
 
 
-class Post(db.Model):
-    __tablename__ = 'posts'
-
-    id = db.Column(db.Integer, primary_key=True)
-
-    sender_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    reciever_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    text = db.Column(db.String(2000))
-
-    created = db.Column(db.DateTime, nullable=False)
-
-    def __init__(self, sender_id, reciever_id, text, created=datetime.utcnow()):
-        self.sender_id = sender_id
-        self.reciever_id = reciever_id
+class Post():
+    def __init__(self, sender_username, reciever_username, text, created=datetime.utcnow()):
+        self.sender_username = sender_username
+        self.reciever_username = reciever_username
         self.text = text
         self.created = created
+
+    
+    def __str__(self):
+        return f"Sender username: {self.sender_username}, Reciever username: {self.reciever_username}, Text: {self.text}, Created: {self.created}"

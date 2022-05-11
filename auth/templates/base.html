@@ -44,7 +44,7 @@
         </li>
 
         <!-- User is not logged in -->
-        {% if not current_user.is_authenticated %}
+        {% if 'current_user' not in session %}
         
         <li class="nav-item">
           <a class="nav-link active" href=" {{ url_for('auth.login') }} ">Login</a>
