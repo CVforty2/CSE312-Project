@@ -60,6 +60,7 @@ class WebSocketRequest(Requests.BufferedRequest):
         if self.method == headers.get('header info').get('method') and \
                 self.path.match(headers.get('header info').get('path').get('route')):
             # send the response, but don't return anything!
+            print(f"Headers: {headers}")
             web_socket_parser.web_socket_response(headers.get('Sec-WebSocket-Key')).send_response(handler)
             # add the handler to the set of ws connections
             ws_connections.add_connection(handler)

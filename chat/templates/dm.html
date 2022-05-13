@@ -25,23 +25,29 @@ block content%}
 
 <h2>Messages with {{username}}</h2>
 
-<form method="post">
+<form method="post" enctype="multipart/form-data">
   <p>
     {{form.csrf_token}} <br />
     {{form.text.label}} {{form.text()}} <br />
+    {{form.picture.label}} {{form.picture()}} <br />
     {{form.submit()}} <br />
   </p>
 </form>
 
-<h2>Post a live image of the Day!</h2>
+<h2>Post a socket image!</h2>
 <input type="file" id="socket_image" />
 <input type="button" value="Upload" onclick="sendFile()" />
 <img style='width: 100%;max-width: 500px;' id="image"></img>
 
-{% for p in posts %} {% if p['sender_username'] ==
-session['current_user']['username'] %}
-<div class="alert alert-primary" role="alert">{{p.text}}</div>
+{% for p in posts %} 
+
+{% if p['sender_username'] == session['current_user']['username'] %}
+<div class="alert alert-primary" role="alert">{{p.text}} <br>
+  <img src="{{url_for('chat.send_uploaded_file', filename=p.image_path)}}" alt="">
+</div>
 {% else %}
-<div class="alert alert-secondary" role="alert">{{p.text}}</div>
+<div class="alert alert-secondary" role="alert">{{p.text}} <br>
+  <img src="{{url_for('chat.send_uploaded_file', filename=p.image_path)}}" alt="">
+</div>
 
 {% endif %} {% endfor %} {% endblock %}

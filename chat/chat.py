@@ -1,6 +1,8 @@
-from flask import Blueprint, flash, render_template, redirect, url_for, session, g
-from datetime import datetime, timedelta
-import json
+from flask import Blueprint, flash, render_template, redirect, url_for, session, send_from_directory
+from datetime import datetime
+import os
+from werkzeug.utils import secure_filename
+import time
 
 from auth.models import User
 from chat.models import Post
@@ -9,6 +11,15 @@ from app import user_collection, msg_collection
 
 
 chat_bp = Blueprint("chat", __name__, template_folder="templates")
+
+UPLOAD_FOLDER = "chat/user_images"
+
+
+@chat_bp.route("/uploads/<filename>")
+def send_uploaded_file(filename=''):
+    return send_from_directory(
+        UPLOAD_FOLDER, filename
+    )
 
 
 
@@ -61,8 +72,13 @@ def chat(username):
     form = ChatForm()
 
     if form.validate_on_submit():
+
+        image_name = ""
+        if form.picture.data != None:
+            image_name = secure_filename(str(time.time())+ '_' + form.picture.data.filename)
+            form.picture.data.save(os.path.join(UPLOAD_FOLDER, image_name))
         
-        p = Post(session['current_user']['username'], username, form.text.data, datetime.utcnow())
+        p = Post(session['current_user']['username'], username, form.text.data, image_name, datetime.utcnow())
         msg_collection.insert_one(p.__dict__)
 
         flash("Sent message!", 'success')
