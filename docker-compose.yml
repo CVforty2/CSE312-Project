@@ -1,4 +1,4 @@
-version: '3.3'
+version: "3.3"
 services:
   mongo:
     image: mongo:latest
@@ -8,6 +8,8 @@ services:
     environment:
       PYTHONUNBUFFERED: 1
     ports:
-      - '8080:8080'
-
-  
+      - "8080:8080"
+  socketserver:
+    build: ./socket_server
+    ports:
+      - "8081:8000"
