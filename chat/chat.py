@@ -60,6 +60,9 @@ def index():
 
 @chat_bp.route("/dm/<username>", methods=['GET', 'POST'])
 def chat(username):
+    if 'current_user' not in session:
+        return redirect(url_for('auth.login'))
+        
     activate_user()
 
     out_msgs = list(msg_collection.find({'sender_username': session['current_user']['username'], 'reciever_username': username}))
